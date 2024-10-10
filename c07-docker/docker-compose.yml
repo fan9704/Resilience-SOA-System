@@ -1,0 +1,81 @@
+version: '3.8'
+services:
+  database:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB:       "bstock"
+    volumes:
+        - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
+        - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
+    networks:
+      backend:
+        aliases:
+          - "database"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  configserver:
+#    image: bstock/c07-configserver:0.0.1-SNAPSHOT
+    image: fan9704/c07-configserver
+    ports:
+       - "8071:8071"
+    environment:
+      ENCRYPT_KEY: "jimsecretkey"
+    networks:
+      backend:
+        aliases:
+          - "configserver"
+  eurekaserver:
+#    image: bstock/c07-eurekaserver:0.0.1-SNAPSHOT
+    image: fan9704/c07-eurekaserver
+    ports:
+      - "8070:8070"
+    depends_on:
+      database:
+        condition: service_healthy
+      configserver:
+        condition: service_started  
+    networks:
+      backend:
+        aliases:
+          - "eurekaserver"
+  bookservice:
+#    image: bstock/c07-book-service:0.0.1-SNAPSHOT
+    image: fan9704/c07-book-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CONFIG_IMPORT=configserver:http://configserver:8071 
+    depends_on:
+      database:
+        condition: service_healthy
+      configserver:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+  authorservice:
+#    image: bstock/c07-author-service:0.0.1-SNAPSHOT
+    image: fan9704/c07-author-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CONFIG_IMPORT=configserver:http://configserver:8071 
+    depends_on:
+      database:
+        condition: service_healthy
+      configserver:
+        condition: service_started
+    ports:
+      - "8081:8081"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
