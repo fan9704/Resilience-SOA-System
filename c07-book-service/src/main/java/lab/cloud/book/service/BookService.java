@@ -109,10 +109,11 @@ public class BookService {
 
 	}
 
-	@CircuitBreaker(name = "bookService", fallbackMethod = "buildFallbackBookList")
-	@RateLimiter(name = "bookService", fallbackMethod = "buildFallbackBookList")
-	@Retry(name = "retryBookService", fallbackMethod = "buildFallbackBookList")
-	@Bulkhead(name = "bulkheadBookService", type= Type.THREADPOOL, fallbackMethod = "buildFallbackBookList")
+	@CircuitBreaker(name = "bookService")
+//	@CircuitBreaker(name = "bookService", fallbackMethod = "buildFallbackBookList")
+//	@RateLimiter(name = "bookService", fallbackMethod = "buildFallbackBookList")
+//	@Retry(name = "retryBookService", fallbackMethod = "buildFallbackBookList")
+//	@Bulkhead(name = "bulkheadBookService", type= Type.THREADPOOL, fallbackMethod = "buildFallbackBookList")
 	public List<Book> getBooksByAuthor(String authorId) throws TimeoutException {
 		logger.debug("BookService Correlation id: {}",
 				UserContextHolder.getContext().getCorrelationId());

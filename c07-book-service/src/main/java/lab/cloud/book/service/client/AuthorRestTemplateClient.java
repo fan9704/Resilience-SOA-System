@@ -16,7 +16,8 @@ public class AuthorRestTemplateClient {
     public Author getAuthor(String authorId){
         ResponseEntity<Author> restExchange =
                 restTemplate.exchange(
-                        "http://author-service/v1/author/{authorId}",
+//                        "http://author-service/v1/author/{authorId}",
+                        "http://127.0.0.1:8081/v1/author/{authorId}",
                         HttpMethod.GET,
                         null, Author.class, authorId);
 
