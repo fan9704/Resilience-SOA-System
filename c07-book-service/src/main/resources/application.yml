@@ -4,7 +4,8 @@ spring:
   profiles:
     active: dev
   config:
-    import: configserver:http://configserver:8071
+    import: configserver:http://127.0.0.1:8071
+#    import: configserver:http://configserver:8071
 
 logging:
   level:
